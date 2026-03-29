@@ -19,3 +19,13 @@ export async function getMe() {
   const { data } = await api.get("/api/auth/me");
   return data;
 }
+
+export async function forgotPassword(payload) {
+  const { data } = await api.post("/api/auth/forgot-password", payload);
+  return data;
+}
+
+export async function changePassword(payload) {
+  const { data } = await api.post("/api/auth/change-password", payload);
+  return data;
+}

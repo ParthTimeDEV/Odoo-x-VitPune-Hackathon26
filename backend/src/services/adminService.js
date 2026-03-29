@@ -12,7 +12,7 @@ function validateRole(role) {
 
 async function getUsers(companyId) {
   const result = await pool.query(
-    `SELECT id, company_id, email, role, manager_id, created_at
+    `SELECT id, company_id, name, email, role, manager_id, created_at
      FROM users
      WHERE company_id = $1
      ORDER BY id ASC`,
@@ -22,9 +22,9 @@ async function getUsers(companyId) {
 }
 
 async function createUser(companyId, payload) {
-  const { email, password, role, managerId } = payload;
-  if (!email || !password || !role) {
-    throw createHttpError("email, password and role are required", 400);
+  const { name, email, password, role, managerId } = payload;
+  if (!name || !email || !password || !role) {
+    throw createHttpError("name, email, password and role are required", 400);
   }
 
   validateRole(role);
@@ -45,10 +45,10 @@ async function createUser(companyId, payload) {
 
   try {
     const result = await pool.query(
-      `INSERT INTO users (company_id, email, password_hash, role, manager_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, company_id, email, role, manager_id, created_at`,
-      [companyId, email.trim().toLowerCase(), passwordHash, role, managerId || null]
+      `INSERT INTO users (company_id, name, email, password_hash, role, manager_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, company_id, name, email, role, manager_id, created_at`,
+      [companyId, name.trim(), email.trim().toLowerCase(), passwordHash, role, managerId || null]
     );
     return result.rows[0];
   } catch (error) {
@@ -66,7 +66,7 @@ async function assignRole(companyId, userId, role) {
     `UPDATE users
      SET role = $1
      WHERE id = $2 AND company_id = $3
-     RETURNING id, company_id, email, role, manager_id`,
+     RETURNING id, company_id, name, email, role, manager_id`,
     [role, userId, companyId]
   );
 
@@ -100,7 +100,7 @@ async function setManager(companyId, userId, managerId) {
     `UPDATE users
      SET manager_id = $1
      WHERE id = $2 AND company_id = $3
-     RETURNING id, company_id, email, role, manager_id`,
+     RETURNING id, company_id, name, email, role, manager_id`,
     [managerId, userId, companyId]
   );
 

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS companies (
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  name VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'manager', 'employee')),
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   amount_submitted NUMERIC(12,2) NOT NULL,
   currency_submitted VARCHAR(3) NOT NULL,
   amount_company_currency NUMERIC(12,2) NOT NULL,
+  exchange_rate NUMERIC(12,6),
   description TEXT,
   expense_date DATE NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('draft', 'pending', 'approved', 'rejected')),

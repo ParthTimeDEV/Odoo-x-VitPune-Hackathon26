@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { requireAuth } = require("../middleware/authMiddleware");
-const { signupFirstAdmin, login } = require("../services/authService");
+const { signupFirstAdmin, login, forgotPassword, changePassword } = require("../services/authService");
 
 const router = express.Router();
 
@@ -36,6 +36,24 @@ router.post("/login", async (req, res, next) => {
       user: result.user,
       token: result.token
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/forgot-password", async (req, res, next) => {
+  try {
+    const result = await forgotPassword(req.body);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/change-password", async (req, res, next) => {
+  try {
+    const result = await changePassword(req.body);
+    res.json(result);
   } catch (error) {
     next(error);
   }

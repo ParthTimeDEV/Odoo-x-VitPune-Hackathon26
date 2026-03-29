@@ -19,7 +19,7 @@ export default function AdminDashboardPage() {
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
 
-  const [newUser, setNewUser] = useState({ email: "", password: "", role: "employee", managerId: "" });
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "employee", managerId: "" });
   const [newCategory, setNewCategory] = useState("");
 
   const managers = useMemo(() => users.filter((u) => u.role === "manager"), [users]);
@@ -44,12 +44,13 @@ export default function AdminDashboardPage() {
     setError("");
     try {
       await createUser({
+        name: newUser.name,
         email: newUser.email,
         password: newUser.password,
         role: newUser.role,
         managerId: newUser.managerId ? Number(newUser.managerId) : null
       });
-      setNewUser({ email: "", password: "", role: "employee", managerId: "" });
+      setNewUser({ name: "", email: "", password: "", role: "employee", managerId: "" });
       await loadData();
     } catch (err) {
       setError(err?.response?.data?.error || "Failed to create user");
@@ -97,7 +98,15 @@ export default function AdminDashboardPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button className="rounded border px-3 py-1" onClick={onLogout}>Logout</button>
+        <div className="flex gap-2">
+          <button
+            className="rounded border px-3 py-1"
+            onClick={() => navigate("/admin/approval-rules")}
+          >
+            Approval Rules
+          </button>
+          <button className="rounded border px-3 py-1" onClick={onLogout}>Logout</button>
+        </div>
       </header>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -105,6 +114,13 @@ export default function AdminDashboardPage() {
       <section className="grid gap-6 md:grid-cols-2">
         <form className="space-y-3 rounded bg-white p-4 shadow" onSubmit={onCreateUser}>
           <h2 className="text-lg font-semibold">Create User</h2>
+          <input
+            className="w-full rounded border p-2"
+            placeholder="Full Name"
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+            required
+          />
           <input
             className="w-full rounded border p-2"
             placeholder="Email"
@@ -170,6 +186,7 @@ export default function AdminDashboardPage() {
             <thead>
               <tr className="border-b text-left">
                 <th className="p-2">ID</th>
+                <th className="p-2">Name</th>
                 <th className="p-2">Email</th>
                 <th className="p-2">Role</th>
                 <th className="p-2">Manager</th>
@@ -180,6 +197,7 @@ export default function AdminDashboardPage() {
               {users.map((user) => (
                 <tr key={user.id} className="border-b">
                   <td className="p-2">{user.id}</td>
+                  <td className="p-2">{user.name}</td>
                   <td className="p-2">{user.email}</td>
                   <td className="p-2">{user.role}</td>
                   <td className="p-2">{user.manager_id || "-"}</td>

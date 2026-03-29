@@ -51,6 +51,25 @@ async function getCurrencyCodeForCountry(countryName) {
   }
 }
 
+async function getExchangeRate(fromCurrency, toCurrency) {
+  if (fromCurrency === toCurrency) {
+    return 1.0;
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.exchangerate-api.com/v4/latest/${fromCurrency.toUpperCase()}`
+    );
+    const rates = response.data?.rates || {};
+    const rate = rates[toCurrency.toUpperCase()];
+    return rate || 1.0;
+  } catch (_error) {
+    console.error(`Failed to fetch FX rate from ${fromCurrency} to ${toCurrency}:`, _error.message);
+    return 1.0;
+  }
+}
+
 module.exports = {
-  getCurrencyCodeForCountry
+  getCurrencyCodeForCountry,
+  getExchangeRate
 };

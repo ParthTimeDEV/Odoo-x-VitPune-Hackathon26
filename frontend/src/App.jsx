@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminApprovalRulesPage from "./pages/AdminApprovalRulesPage";
 import ManagerApprovalsPage from "./pages/ManagerApprovalsPage";
 import EmployeeExpensesPage from "./pages/EmployeeExpensesPage";
 
@@ -18,6 +19,15 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/approval-rules"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminApprovalRulesPage />
           </ProtectedRoute>
         }
       />

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getEmployeeCategories, getMyExpenses, submitExpense } from "../api/expenseApi";
+import CurrencySelector from "../components/CurrencySelector";
 import StatusBadge from "../components/StatusBadge";
 import { useAuth } from "../context/AuthContext";
 
@@ -17,7 +18,8 @@ export default function EmployeeExpensesPage() {
     amount: "",
     currency: "",
     description: "",
-    expenseDate: ""
+    expenseDate: "",
+    receiptFile: null
   });
 
   async function loadData() {
@@ -49,7 +51,14 @@ export default function EmployeeExpensesPage() {
         description: form.description,
         expenseDate: form.expenseDate
       });
-      setForm({ categoryId: "", amount: "", currency: "", description: "", expenseDate: "" });
+      setForm({
+        categoryId: "",
+        amount: "",
+        currency: "",
+        description: "",
+        expenseDate: "",
+        receiptFile: null
+      });
       await loadData();
     } catch (err) {
       setError(err?.response?.data?.error || "Failed to submit expense");
@@ -93,11 +102,10 @@ export default function EmployeeExpensesPage() {
           onChange={(e) => setForm({ ...form, amount: e.target.value })}
           required
         />
-        <input
-          className="w-full rounded border p-2"
-          placeholder="Currency (optional)"
+        <CurrencySelector
           value={form.currency}
-          onChange={(e) => setForm({ ...form, currency: e.target.value })}
+          onChange={(currency) => setForm({ ...form, currency })}
+          placeholder="Select currency (optional)"
         />
         <input
           className="w-full rounded border p-2"
@@ -112,6 +120,20 @@ export default function EmployeeExpensesPage() {
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold">Receipt Image (placeholder only)</label>
+          <input
+            className="w-full rounded border p-2"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setForm({ ...form, receiptFile: e.target.files?.[0] || null })}
+          />
+          <p className="text-xs text-slate-500">
+            {form.receiptFile
+              ? `Selected: ${form.receiptFile.name}`
+              : "No file selected. OCR/upload integration is intentionally not implemented yet."}
+          </p>
+        </div>
         <button className="rounded bg-slate-900 px-3 py-2 text-white">Submit</button>
       </form>
 
@@ -123,8 +145,9 @@ export default function EmployeeExpensesPage() {
               <tr className="border-b text-left">
                 <th className="p-2">Date</th>
                 <th className="p-2">Category</th>
-                <th className="p-2">Submitted</th>
-                <th className="p-2">Company Amt</th>
+                <th className="p-2">Submitted Amount</th>
+                <th className="p-2">Exchange Rate</th>
+                <th className="p-2">Company Currency</th>
                 <th className="p-2">Status</th>
               </tr>
             </thead>
@@ -136,7 +159,12 @@ export default function EmployeeExpensesPage() {
                   <td className="p-2">
                     {expense.amount_submitted} {expense.currency_submitted}
                   </td>
-                  <td className="p-2">{expense.amount_company_currency}</td>
+                  <td className="p-2">
+                    {expense.exchange_rate ? Number(expense.exchange_rate).toFixed(4) : "1.0000"}
+                  </td>
+                  <td className="p-2 font-semibold">
+                    {Number(expense.amount_company_currency || 0).toFixed(2)}
+                  </td>
                   <td className="p-2">
                     <StatusBadge status={expense.status} />
                   </td>

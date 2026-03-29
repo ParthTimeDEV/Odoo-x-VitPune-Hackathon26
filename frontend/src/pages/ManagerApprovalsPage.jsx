@@ -62,54 +62,76 @@ export default function ManagerApprovalsPage() {
               <tr className="border-b text-left">
                 <th className="p-2">Employee</th>
                 <th className="p-2">Category</th>
-                <th className="p-2">Company Currency Amount</th>
+                <th className="p-2">Submitted Amount</th>
+                <th className="p-2">Exchange Rate</th>
+                <th className="p-2">Company Currency</th>
                 <th className="p-2">Date</th>
+                <th className="p-2">Approval Progress</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Comment</th>
                 <th className="p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {expenses.map((expense) => (
-                <tr key={expense.id} className="border-b align-top">
-                  <td className="p-2">{expense.employee_email}</td>
-                  <td className="p-2">{expense.category_name}</td>
-                  <td className="p-2">{expense.amount_company_currency}</td>
-                  <td className="p-2">{expense.expense_date?.slice(0, 10)}</td>
-                  <td className="p-2">
-                    <StatusBadge status={expense.status} />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      className="w-full rounded border p-1"
-                      placeholder="Optional comment"
-                      value={commentById[expense.id] || ""}
-                      onChange={(e) =>
-                        setCommentById((prev) => ({
-                          ...prev,
-                          [expense.id]: e.target.value
-                        }))
-                      }
-                    />
-                  </td>
-                  <td className="p-2">
-                    <div className="flex gap-2">
-                      <button
-                        className="rounded bg-emerald-600 px-2 py-1 text-white"
-                        onClick={() => onAction(expense.id, "approved")}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        className="rounded bg-red-600 px-2 py-1 text-white"
-                        onClick={() => onAction(expense.id, "rejected")}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {expenses.map((expense) => {
+                const progressText = expense.condition_mode === "percentage"
+                  ? `${expense.approved_count}/${expense.total_approvers} (${expense.percentage_threshold}% needed)`
+                  : expense.total_approvers > 0
+                  ? `${expense.approved_count}/${expense.total_approvers}`
+                  : "Direct Manager";
+
+                return (
+                  <tr key={expense.id} className="border-b align-top">
+                    <td className="p-2">{expense.employee_email}</td>
+                    <td className="p-2">{expense.category_name}</td>
+                    <td className="p-2">
+                      {expense.amount_submitted} {expense.currency_submitted}
+                    </td>
+                    <td className="p-2">
+                      {expense.exchange_rate ? Number(expense.exchange_rate).toFixed(4) : "1.0000"}
+                    </td>
+                    <td className="p-2 font-semibold">
+                      {Number(expense.amount_company_currency || 0).toFixed(2)}
+                    </td>
+                    <td className="p-2">{expense.expense_date?.slice(0, 10)}</td>
+                    <td className="p-2 text-xs text-gray-700">
+                      {progressText}
+                    </td>
+                    <td className="p-2">
+                      <StatusBadge status={expense.status} />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        className="w-full rounded border p-1"
+                        placeholder="Optional comment"
+                        value={commentById[expense.id] || ""}
+                        onChange={(e) =>
+                          setCommentById((prev) => ({
+                            ...prev,
+                            [expense.id]: e.target.value
+                          }))
+                        }
+                      />
+                    </td>
+                    <td className="p-2">
+                      <div className="flex gap-2">
+                        <button
+                          className="rounded bg-emerald-600 px-2 py-1 text-white"
+                          onClick={() => onAction(expense.id, "approved")}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="rounded bg-red-600 px-2 py-1 text-white"
+                          onClick={() => onAction(expense.id, "rejected")}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

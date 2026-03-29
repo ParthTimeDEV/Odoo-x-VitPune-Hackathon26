@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import CountrySearchSelect from "../components/CountrySearchSelect";
 import { useAuth } from "../context/AuthContext";
 
 export default function SignupPage() {
@@ -10,6 +11,7 @@ export default function SignupPage() {
   const [form, setForm] = useState({
     companyName: "",
     countryName: "",
+    name: "",
     email: "",
     password: ""
   });
@@ -42,11 +44,18 @@ export default function SignupPage() {
           onChange={(e) => setForm({ ...form, companyName: e.target.value })}
           required
         />
+        <p className="text-sm font-semibold">Country</p>
+        <CountrySearchSelect
+          value={form.countryName}
+          onChange={(countryName) => setForm({ ...form, countryName })}
+          placeholder="Search country"
+          required
+        />
         <input
           className="w-full rounded border p-2"
-          placeholder="Country Name"
-          value={form.countryName}
-          onChange={(e) => setForm({ ...form, countryName: e.target.value })}
+          placeholder="Full Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
         />
         <input
